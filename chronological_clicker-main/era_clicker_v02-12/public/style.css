@@ -1,4 +1,4 @@
-/* --- Réinitialisation et Police --- */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -19,7 +19,7 @@ body {
     transition: background-image 1s ease-in-out;
 }
 
-/* --- NOUVEAU : Style pour le titre --- */
+
 .game-title {
     text-align: center;
     font-size: 2.5rem;
@@ -31,9 +31,9 @@ body {
 }
 
 
-/* --- Classes d'Ère pour le Fond d'écran --- */
+
 .era-stone_age {
-    /* Nouveau chemin + Répétition et taille ajustée pour le motif de pierres */
+    
     background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/era_stone/era_stone_age.png');
     background-size: cover, (120*6)px auto; 
     background-position: center, bottom left;
@@ -51,7 +51,7 @@ body {
 }
 
 
-/* --- Conteneur Principal (Grille) --- */
+
 .game-container {
     display: grid;
     grid-template-columns: 0.25fr 0.45fr 0.30fr;
@@ -64,7 +64,7 @@ body {
     margin: 0 auto;
 }
 
-/* --- Colonnes de la Grille --- */
+
 .column-left, .column-middle, .column-right {
     display: flex;
     flex-direction: column;
@@ -72,7 +72,7 @@ body {
     height: 100%;
 }
 
-/* --- Panneaux "Verre Dépoli" --- */
+
 .game-panel {
     background: rgba(10, 10, 20, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -97,7 +97,7 @@ h2 {
     padding-bottom: 10px;
 }
 
-/* --- Colonne de Gauche : Stats & Clic --- */
+
 .stats-section {
     flex-direction: row;
     justify-content: space-around;
@@ -124,14 +124,14 @@ h2 {
     gap: 20px;
 }
 
-/* NOUVEAU : Conteneur des flèches et du nom de l'ère */
+
 .era-controls {
     display: flex;
     align-items: center; 
     gap: 15px; 
 }
 
-/* NOUVEAU : Style des boutons de navigation (flèches) */
+
 .era-nav-button {
     font-size: 1rem;
     font-weight: 600;
@@ -155,7 +155,7 @@ h2 {
     font-weight: 600;
     color: #f0f9ff;
     text-align: center;
-    min-width: 150px; /* Assure de la place pour le nom */
+    min-width: 150px; 
 }
 
 #main-click-button {
@@ -163,33 +163,33 @@ h2 {
     height: 300px;
     border: none;
     cursor: pointer;
-    background-color: transparent; /* Fond transparent */
+    background-color: transparent; 
     
-    /* L'image du bouton */
+    
     background-image: url('images/era_stone/Bouton_stone.png');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     
-    /* Effet d'ombre sur le PNG */
+    
     filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
     transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 #main-click-button:active {
-    transform: scale(0.8); /* Effet d'écrasement au clic */
+    transform: scale(0.8); 
 }
 
-/* Ajoute cette nouvelle classe pour le texte sous le bouton */
+
 .action-text {
     font-size: 1.2rem;
     font-weight: 700;
     color: #cbd5e1;
-    margin-top: -10px; /* Remonte un peu le texte vers l'image */
+    margin-top: -10px; 
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
-/* --- Colonne Centrale : Visuel (Inchangé) --- */
+
 .visual-canvas-section {
     flex-grow: 1;
 }
@@ -202,28 +202,28 @@ h2 {
     overflow: hidden;
 }
 
-/* Image pour l'Âge de Pierre */
+
 .era-stone_age #visual-canvas {
-    /* 1. On charge l'image */
+    
     background-image: url('images/era_stone/village_era_stone.png');
     
-    /* 2. On s'assure qu'elle couvre tout le bloc sans se déformer */
+    
     background-size: cover;
-    background-position: center bottom; /* Calée en bas au centre */
+    background-position: center bottom; 
     background-repeat: no-repeat;
 
-    /* 3. (Optionnel) Effet "Pixel Art" si ton image est en basse résolution */
+    
     image-rendering: pixelated; 
 
-    /* 4. On garde la bordure et on retire le fond noir semi-transparent si besoin */
+    
     border: 2px solid rgba(255, 255, 255, 0.5);
     background-color: transparent; 
 }
 
-/* (Prévision) Image pour l'Âge de Bronze */
+
 .era-bronze_age #visual-canvas {
-    /* Tu mettras ton image de bronze ici plus tard */
-    background-color: rgba(139, 69, 19, 0.3); /* Couleur temporaire */
+    
+    background-color: rgba(139, 69, 19, 0.3); 
 }
 
 .visual-upgrade-icon {
@@ -233,19 +233,19 @@ h2 {
     animation: fadeIn 0.5s ease;
 }
 
-/* --- Style combiné : Taille + Animation + Contour --- */
+
 img.visual-upgrade-icon.visual-image {
-    /* 1. Taille agrandie (90px) */
+   
     width: 90px; 
     height: 90px;
     object-fit: contain;
     image-rendering: pixelated; 
     
-    /* 2. Interactivité (Main) et Fluidité */
+   
     cursor: pointer;
-    transition: transform 0.2s ease, filter 0.2s ease; /* 'transform' ou 'scale' selon les navigateurs */
+    transition: transform 0.2s ease, filter 0.2s ease; 
 
-    /* 3. Contour blanc permanent (Effet Sticker) */
+    
     filter: drop-shadow(1px 0 0 black) 
             drop-shadow(-1px 0 0 black) 
             drop-shadow(0 1px 0 black) 
@@ -257,7 +257,7 @@ img.visual-upgrade-icon.visual-image {
     to { opacity: 1; transform: scale(1); }
 }
 
-/* --- Colonne de Droite : Améliorations & Ère (Inchangé) --- */
+
 .upgrade-section {
     flex-grow: 1;
 }
@@ -319,4 +319,17 @@ img.visual-upgrade-icon.visual-image {
 #advance-era-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+#save-button {
+    margin-top: 15px; 
+    padding: 10px 20px;
+    background-color: #2563eb; 
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    width: 100%; 
 }

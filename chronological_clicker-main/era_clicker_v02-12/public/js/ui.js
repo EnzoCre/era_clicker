@@ -13,6 +13,7 @@ const advanceEraButton = document.getElementById('advance-era-button');
 const visualCanvas = document.getElementById('visual-canvas');
 const prevEraButton = document.getElementById('prev-era-button'); 
 const nextEraButton = document.getElementById('next-era-button');
+const saveButton = document.getElementById("save-button");
 
 export function renderVisualCanvas() {
     visualCanvas.innerHTML = '';

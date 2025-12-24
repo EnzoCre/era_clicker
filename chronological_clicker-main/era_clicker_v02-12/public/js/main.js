@@ -21,6 +21,7 @@ function initializeGame() {
     document.getElementById('advance-era-button').addEventListener('click', handleAdvanceEra);
     document.getElementById('prev-era-button').addEventListener('click', handlePrevEra);
     document.getElementById('next-era-button').addEventListener('click', handleNextEra);
+    document.getElementById('save-button').addEventListener('click', saveGame);
 
     // BOUTON RESET
     const resetButton = document.getElementById('reset-game-button');
@@ -42,18 +43,18 @@ function initializeGame() {
     setInterval(gameLoop, 1000);
 
     // Sauvegarde auto périodique (toutes les 10s)
-    setInterval(() => { 
-        if (!isResetting) { // On ne sauvegarde que si on n'est pas en train de reset
-            saveGame();
-        }
-    }, 10000);
+    // setInterval(() => { 
+    //     if (!isResetting) { // On ne sauvegarde que si on n'est pas en train de reset
+    //         saveGame();
+    //     }
+    // }, 10000);
 
-    // Sauvegarde en quittant la page
-    window.addEventListener('beforeunload', () => { 
-        if (!isResetting) {
-            saveGame();
-        }
-    });
+    // // Sauvegarde en quittant la page
+    // window.addEventListener('beforeunload', () => { 
+    //     if (!isResetting) {
+    //         saveGame();
+    //     }
+    // });
 }
 
 document.addEventListener('DOMContentLoaded', initializeGame);

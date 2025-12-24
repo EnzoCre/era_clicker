@@ -124,16 +124,29 @@ export function gameLoop() {
     }
 }
 
-export function saveGame() {
-    const dataToSave = {
-        gameState: gameState,
-        upgradesOwned: {}
+export async function saveGame() {
+    const dataToSend = {
+        knowledge: gameState.knowledge,
+        kps: gameState.kps,
+        clickValue: gameState.clickValue
     };
-    for (const [id, upgrade] of Object.entries(upgrades)) {
-        dataToSave.upgradesOwned[id] = upgrade.owned;
+
+    try {
+        const response = await fetch('http://localhost:8080/api/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        });
+        if (response.ok) {
+            alert("Sauvegarde réussie !");
+        } else {
+            console.error("Erreur serveur...");
+        }
+    } catch (err) {
+        console.error("Impossible de contacter le serveur", err);
     }
-    localStorage.setItem('eraClickerSave_v1', JSON.stringify(dataToSave));
-    console.log("💾 Jeu sauvegardé auto.");
 }
 
 export function loadGame() {
