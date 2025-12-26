@@ -126,13 +126,14 @@ export function gameLoop() {
 
 export async function saveGame() {
     const dataToSend = {
+        playerName: "Florian",
         knowledge: gameState.knowledge,
         kps: gameState.kps,
         clickValue: gameState.clickValue
     };
 
     try {
-        const response = await fetch('http://localhost:8080/api/save', {
+        const response = await fetch('http://localhost:8080/save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -149,18 +150,36 @@ export async function saveGame() {
     }
 }
 
-export function loadGame() {
-    const savedString = localStorage.getItem('eraClickerSave_v1');
-    if (savedString) {
-        const savedData = JSON.parse(savedString);
-        Object.assign(gameState, savedData.gameState);
-        if (savedData.upgradesOwned) {
-            for (const [id, count] of Object.entries(savedData.upgradesOwned)) {
-                if (upgrades[id]) {
-                    upgrades[id].owned = count;
-                }
-            }
+export async function loadGame() {
+    const inputField = document.getElementById('username-input');
+    const pseudo = inputField.value.trim();
+
+    try {
+        
+        const response = await fetch(`http://localhost:8080/api/load/${pseudo}`);
+
+        if (response.ok) {
+            
+            const data = await response.json();
+            console.log("Données reçues :", data);
+
+            if (data.knowledge !== undefined) gameState.knowledge = data.knowledge;
+            if (data.kps !== undefined) gameState.kps = data.kps;
+            if (data.clickValue !== undefined) gameState.clickValue = data.clickValue;
+            
+            if (data.currentEra) gameState.currentEra = data.currentEra;
+            if (data.maxEraReached) gameState.maxEraReached = data.maxEraReached;
+
+            updateUI(); 
+
+            alert(`Bon retour parmi nous, ${pseudo} !`);
+
+        } else {
+            alert("Aucune sauvegarde trouvée pour ce pseudo.");
         }
-        console.log("📂 Sauvegarde chargée !");
+
+    } catch (err) {
+        console.error("Erreur de connexion :", err);
+        alert("Impossible de contacter le serveur.");
     }
 }

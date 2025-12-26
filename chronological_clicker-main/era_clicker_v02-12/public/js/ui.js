@@ -14,6 +14,7 @@ const visualCanvas = document.getElementById('visual-canvas');
 const prevEraButton = document.getElementById('prev-era-button'); 
 const nextEraButton = document.getElementById('next-era-button');
 const saveButton = document.getElementById("save-button");
+const loadButton = document.getElementById("load-button");
 
 export function renderVisualCanvas() {
     visualCanvas.innerHTML = '';
@@ -113,6 +114,7 @@ export function updateUI() {
     prevEraButton.innerText = `⬅️`;
     nextEraButton.style.display = (currentEraData.nextEra && gameState.currentEra !== gameState.maxEraReached) ? 'inline-block' : 'none';
     nextEraButton.innerText = `➡️`;
+    saveButton.innerText = 'Sauvegarder'
     
     // Appel à React
     if (window.renderReactApp) {

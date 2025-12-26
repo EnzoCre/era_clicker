@@ -22,6 +22,8 @@ function initializeGame() {
     document.getElementById('prev-era-button').addEventListener('click', handlePrevEra);
     document.getElementById('next-era-button').addEventListener('click', handleNextEra);
     document.getElementById('save-button').addEventListener('click', saveGame);
+    document.getElementById('load-button').addEventListener('click', loadGame);
+    
 
     // BOUTON RESET
     const resetButton = document.getElementById('reset-game-button');
@@ -36,7 +38,7 @@ function initializeGame() {
         });
     }
 
-    loadGame();
+    // loadGame();
     updateUI();
     renderVisualCanvas();
 
