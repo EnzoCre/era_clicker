@@ -9,9 +9,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-app.post('/api/save', async (req, res) => {
+app.post('/api/create', async (req, res) => {
     try { 
-        const nouvelleSave = new collection(req.body);
+        const nouvelleSave = new collection(req.body); 
         await nouvelleSave.save();
 
         res.status(200).end();
@@ -35,6 +35,28 @@ app.get('/api/load/:pseudo', async (req, res) => {
 
     } catch (error) {
         console.error(error);
+        res.status(500).end();
+    }
+});
+
+app.post('/api/save/:pseudo', async (req, res) => {
+    try {
+        const pseudo = req.params.pseudo; 
+        const stats = req.body;              
+
+        const result = await collection.updateOne(
+            { playerName: pseudo },     
+            { $set: stats } 
+        );
+
+        if (result.matchedCount == 0) {
+            return res.status(404).end();
+        }
+
+        res.status(200).end();
+
+    } catch (error) {
+        console.error("Erreur save:", error);
         res.status(500).end();
     }
 });

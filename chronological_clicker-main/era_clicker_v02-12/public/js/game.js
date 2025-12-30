@@ -23,8 +23,13 @@ export function showInfos() {
     console.log("clickValue = ",gameState.clickValue);
 }
 
+export function setPlayerName(playerName) {
+    gameState.playerName = playerName;
+}
+
 window.addKnowledge = addKnowledge;
 window.showInfos = showInfos;
+window.setPlayerName = setPlayerName;
 
 
 
@@ -54,7 +59,7 @@ export function handleBuyUpgrade(event) {
             isImage = true;
             const luck = Math.floor(Math.random() * 5);
             if (luck === 0) { 
-                console.log("✨ PIERRE SHINY DÉCOUVERT ! ✨");
+                console.log("PIERRE SHINY DÉCOUVERT !");
                 valueToAdd = upgrade.value * 10; 
                 visualSource = 'images/era_stone/Pierre/Pierre_Shiny.png';
             } else {
@@ -66,7 +71,7 @@ export function handleBuyUpgrade(event) {
             isImage = true;
             const luck = Math.floor(Math.random() * 5);
             if (luck === 0) { 
-                console.log("✨ MAMMOUTH SHINY DÉCOUVERT ! ✨");
+                console.log("MAMMOUTH SHINY DÉCOUVERT !");
                 valueToAdd = upgrade.value * 10; 
                 visualSource = 'images/era_stone/Mamouth/Mamouth_Shiny.png';
             } else {
@@ -78,7 +83,7 @@ export function handleBuyUpgrade(event) {
             isImage = true;
             const luck = Math.floor(Math.random() * 5);
             if (luck === 0) { 
-                console.log("✨ CUEILLEUR SHINY DÉCOUVERT ! ✨");
+                console.log("CUEILLEUR SHINY DÉCOUVERT !");
                 valueToAdd = upgrade.value * 10; 
                 visualSource = 'images/era_stone/Ceuilleur/Ceuilleur_Shiny.png';
             } else {
@@ -140,33 +145,46 @@ export function gameLoop() {
 export async function saveGame() {
 
     const dataToSend = {
-        playerName: "Florian",
-        playerPassword: "1410fc11f032dd22f0d329e34f8db32e",
         knowledge: gameState.knowledge,
         kps: gameState.kps,
         clickValue: gameState.clickValue
     };
 
-    try {
-        const response = await fetch('http://localhost:8080/api/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataToSend)
-        });
-        if (response.ok) {
-            alert("Sauvegarde réussie !");
-        } else {
-            console.error("Erreur serveur...");
+    const pseudo = gameState.playerName;
+
+    if (pseudo == null) alert("Veuillez vous connecter/creer un compte");
+    else{
+
+        const result = await updateDatabase(pseudo,dataToSend);
+
+        if (result.ok)
+        {
+            alert("Sauvegarde réussie");
         }
-    } catch (err) {
-        console.error("Impossible de contacter le serveur", err);
+
     }
+    
+}
+
+async function updateDatabase(playerName,dataToSend)
+{
+    try{
+        const url = `http://localhost:8080/api/save/${playerName}`;
+
+        const response = await fetch(url, {
+                method: "POST", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dataToSend) 
+            });
+
+            return response;
+        } catch (err) {
+            console.error("Impossible de contacter le serveur", err);
+        }
 }
 
 export async function loadGame() {
-    const inputField = document.getElementById('username-input');
+    const inputField = document.getElementById("username-input");
     const pseudo = inputField.value.trim();
 
     try {
@@ -202,8 +220,8 @@ export async function loadGame() {
 export async function register() {
 
     
-    const inputFieldPseudo = document.getElementById('newUser');
-    const inputFieldPassword = document.getElementById('newPass');
+    const inputFieldPseudo = document.getElementById("newUser");
+    const inputFieldPassword = document.getElementById("newPass");
     const pseudo = inputFieldPseudo.value.trim();
     const password = inputFieldPassword.value.trim();
     const hashPassword = md5(password);
@@ -214,14 +232,40 @@ export async function register() {
 
     if (response.ok) {
    
-        alert(`Ce nom d'utilisateur est déjà pris`);
+        alert("Ce nom d'utilisateur est déjà pris");
 
     } else if (response.status == 404){
 
         gameState.playerName = pseudo;
         gameState.playerPassword = hashPassword;
 
+        const dataToSend = {
+        playerName: pseudo,
+        playerPassword: hashPassword,
+        knowledge: gameState.knowledge,
+        kps: gameState.kps,
+        clickValue: gameState.clickValue
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dataToSend)
+            });
+            if (response.ok) {
+                alert("Compte créé");
+            } else {
+                console.error("Erreur serveur...");
+            }
+        } catch (err) {
+            console.error("Impossible de contacter le serveur", err);
+        }
+
         console.log("Compte créé");
+    
     }
 
 
@@ -232,8 +276,8 @@ export async function register() {
 
 export async function login() {
 
-    const inputFieldPseudo = document.getElementById('user');
-    const inputFieldPassword = document.getElementById('pass');
+    const inputFieldPseudo = document.getElementById("user");
+    const inputFieldPassword = document.getElementById("pass");
     const pseudo = inputFieldPseudo.value.trim();
     const password = inputFieldPassword.value.trim();
     const hashPassword = md5(password);
@@ -248,11 +292,11 @@ export async function login() {
 
             if (data.playerPassword == hashPassword) {
                 
-                
-
-                if (data.knowledge !== undefined) gameState.knowledge = data.knowledge;
-                if (data.kps !== undefined) gameState.kps = data.kps;
-                if (data.clickValue !== undefined) gameState.clickValue = data.clickValue;
+                gameState.playerName = data.playerName;
+                gameState.playerPassword = data.playerPassword;
+                gameState.knowledge = data.knowledge;
+                gameState.kps = data.kps;
+                gameState.clickValue = data.clickValue;
 
 
                 alert(`Bon retour parmi nous, ${pseudo} !`);
@@ -271,3 +315,4 @@ export async function login() {
     }
 
 }
+
