@@ -399,28 +399,33 @@ export async function sendAttack(target) {
 
         if (x >= 0 && x <= 9) { //L'attaquant perd 2000 connaissances (Pire scénario pour lui (10%))
 
-            let newKnowledge;
-        
-            if (gameState.knowledge >= 2000) {
-                newKnowledge = gameState.knowledge - 2000;
-            }else if (gameState.knowledge < 2000){
-                newKnowledge = 0;
+            const response = await fetch(`http://localhost:8080/api/load/${gameState.playerName}`);
+                    
+                    if (response.ok) {
+                        const targetData = await response.json(); 
+    
+                        
+                        let newKnowledge;
+                        if (targetData.knowledge >= 2000) {
+                            newKnowledge = targetData.knowledge - 2000;
+                        } else {
+                            newKnowledge = 0;
+                        }
+    
+                        const dataToSend = {
+                            knowledge: newKnowledge,
+                            kps: targetData.kps,         
+                            clickValue: targetData.clickValue
+                        };
+    
+                        const result = await updateDatabase(gameState.playerName, dataToSend);
+    
+                        if (result.ok){
+                            alert(`Vous avez perdu 2000 de connaisssance !!!`);
+                            printLeaderboard();
+                        }
+    
             }
-    
-            const dataToSend = {
-                knowledge: newKnowledge,
-                kps: gameState.kps,
-                clickValue: gameState.clickValue
-                };
-    
-            const result = await updateDatabase(gameState.playerName,dataToSend);
-    
-            if (result.ok)
-                {
-                    alert("Oups! Vous avez perdu 2000 conaissances");
-                    printLeaderboard();
-                }
-    
         }
     
         if (x >= 10 && x <= 24) { //L'attaquant ne perd rien (Pas fou puisqu'il a dépensé de la connaissance (15%))
