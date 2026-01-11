@@ -402,7 +402,7 @@ export async function printLeaderboard() {
     }
 }
 
-export async function sendAttack(target, attackValue, messageText) {
+export async function sendAttack(target, attackValue) {
     
     if(gameState.playerName == null) {
         alert("Il faut être connecté pour pouvoir attaquer")
@@ -502,6 +502,7 @@ export async function sendAttack(target, attackValue, messageText) {
                                 if (result.ok){
                                     alert(`Vous avez enlevé ${attackValue} de connaissance à ${targetData.playerName}`);
                                     printLeaderboard();
+                                    createAttackDatabase(gameState.playerName,targetData.playerName,attackValue)
                                 }
             
                     }
@@ -531,33 +532,9 @@ export async function sendAttack(target, attackValue, messageText) {
                                 const result = await updateDatabase(target, dataToSend);
             
                                 if (result.ok){
-                                    //alert(`Vous avez enlevé ${2*attackValue} de connaissance à ${targetData.playerName}`);
+                                    alert(`Vous avez enlevé ${2*attackValue} de connaissance à ${targetData.playerName}`);
                                     printLeaderboard();
-
-                                    const messageData = {
-                                        senderName: gameState.playerName,
-                                        targetName: targetData.playerName,
-                                        message: messageText,
-                                        attackValue: attackValue,
-                                    }
-
-                                    try {
-                                        const responseMessage = await fetch("http://localhost:8080/api/sendMessage", {
-                                            method: "POST",
-                                            headers: {
-                                                "Content-Type": "application/json"
-                                            },
-                                            body: JSON.stringify(messageData)
-                                        });
-                                        if (responseMessage.ok) {
-                                            alert("Attaque envoyée");
-                                        } else {
-                                            console.error("Erreur serveur...");
-                                        }
-                                    } catch (err) {
-                                        console.error("Impossible de contacter le serveur", err);
-                                    }
-                                    
+                                    createAttackDatabase(gameState.playerName,targetData.playerName,2*attackValue)
                                 }
             
                     }
@@ -589,6 +566,7 @@ export async function sendAttack(target, attackValue, messageText) {
                                 if (result.ok){
                                     alert(`Jackpot !!! Vous avez enlevé ${10*attackValue} de connaissance à ${targetData.playerName}`);
                                     printLeaderboard();
+                                    createAttackDatabase(gameState.playerName,targetData.playerName,10*attackValue)
                                 }
             
                     }
@@ -621,5 +599,42 @@ export function resetGame() {
     updateDatabase(gameState.playerName,dataToSend);
 
 
+}
+
+
+async function createAttackDatabase(senderName,targetName,attackValue) {
+
+
+    const messageInput = document.getElementById("message-input");
+    const messageText = messageInput.value.trim();
+
+    const messageData = {
+        senderName: senderName,
+        targetName: targetName,
+        message: messageText,
+        attackValue: attackValue,
+    }
+
+    try {
+        const responseMessage = await fetch("http://localhost:8080/api/sendMessage", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(messageData)
+        });
+        if (responseMessage.ok) {
+            console.log("Attaque envoyée");
+        } else {
+            console.error("Erreur serveur...");
+        }
+    } catch (err) {
+        console.error("Impossible de contacter le serveur", err);
+    }
+
+}
+
+async function WereUserAttacked() {
+    
 }
 

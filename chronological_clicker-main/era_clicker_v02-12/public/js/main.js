@@ -64,6 +64,7 @@ function initializeGame() {
 
     
     if (document.getElementById('game-container') || document.getElementById('main-click-button')) {
+        loadFromSessionStorage;
         updateUI();
         renderVisualCanvas();
         setInterval(gameLoop, 1000);
