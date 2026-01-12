@@ -208,7 +208,8 @@ async function updateDatabase(playerName,dataToSend)
         const response = await fetch(url, {
                 method: "POST", 
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(dataToSend) 
+                body: JSON.stringify(dataToSend),
+                keepalive:true 
             });
 
             return response;
@@ -419,60 +420,57 @@ export async function sendAttack(target, attackValue) {
 
                 if (x == 0) { //L'attaquant perd toutes ses connaissances (Pire scénario pour lui (1%))
 
-                    const response = await fetch(`http://localhost:8080/api/load/${gameState.playerName}`);
-                            
-                            if (response.ok) {
-                                const targetData = await response.json(); 
-            
-            
-                                const dataToSend = {
-                                    knowledge: 0,
-                                    kps: targetData.kps,         
-                                    clickValue: targetData.clickValue
-                                };
-            
-                                const result = await updateDatabase(gameState.playerName, dataToSend);
-            
-                                if (result.ok){
-                                    alert(`Vous avez tout perdu !!!`);
-                                    printLeaderboard();
-                                }
-            
-                    }
+                    const dataToSend = {
+                        knowledge: 0, 
+                        kps: gameState.kps, 
+                        clickValue: gameState.clickValue
+                    };
+
+                    updateDatabase(gameState.playerName,dataToSend);
+
+                    gameState.knowledge=0;
+                    printLeaderboard();
+                    alert(`Aïe ! Vous avez tout perdu !!!`);
+
                 }
 
                 if (x >= 1 && x <= 10) { //L'attaquant perd 2x sa mise (10%)
+                                    
+                    let newKnowledge;
+                    if (gameState.knowledge >= 2*attackValue) {
+                        newKnowledge = gameState.knowledge - 2*attackValue;
+                    } else {
+                        newKnowledge = 0;
+                    }
 
-                    const response = await fetch(`http://localhost:8080/api/load/${gameState.playerName}`);
+                    gameState.knowledge=newKnowledge;
+            
+                    const dataToSend = {
+                        knowledge: newKnowledge,
+                        kps: targetData.kps,         
+                        clickValue: targetData.clickValue
+                    };
+            
+                    const result = await updateDatabase(gameState.playerName, dataToSend);
                             
-                            if (response.ok) {
-                                const targetData = await response.json(); 
-            
+                    alert(`Vous avez perdu ${2*attackValue} de connaisssance !!!`);
+                    printLeaderboard();
                                 
-                                let newKnowledge;
-                                if (targetData.knowledge >= 2*attackValue) {
-                                    newKnowledge = targetData.knowledge - 2*attackValue;
-                                } else {
-                                    newKnowledge = 0;
-                                }
-            
-                                const dataToSend = {
-                                    knowledge: newKnowledge,
-                                    kps: targetData.kps,         
-                                    clickValue: targetData.clickValue
-                                };
-            
-                                const result = await updateDatabase(gameState.playerName, dataToSend);
-            
-                                if (result.ok){
-                                    alert(`Vous avez perdu ${2*attackValue} de connaisssance !!!`);
-                                    printLeaderboard();
-                                }
             
                     }
                 }
             
                 if (x >= 11 && x <= 30) { //L'attaquant ne perd rien (Pas fou puisqu'il a dépensé de la connaissance (15%))
+
+                    let newKnowledge;
+                    if (gameState.knowledge >= attackValue) {
+                        newKnowledge = gameState.knowledge - attackValue;
+                    } else {
+                        newKnowledge = 0;
+                    }
+
+                    gameState.knowledge=newKnowledge;
+
                     alert("L'attaque a échoué, la cible s'en sort indemne")
                 }
             
@@ -482,7 +480,15 @@ export async function sendAttack(target, attackValue) {
                             
                             if (response.ok) {
                                 const targetData = await response.json(); 
-            
+                                
+                                let newKnowledgePlayer;
+                                if (gameState.knowledge >= attackValue) {
+                                    newKnowledgePlayer = gameState.knowledge - attackValue;
+                                } else {
+                                    newKnowledgePlayer = 0;
+                                }
+
+                                gameState.knowledge=newKnowledgePlayer;
                                 
                                 let newKnowledge;
                                 if (targetData.knowledge >= attackValue) {
@@ -514,6 +520,15 @@ export async function sendAttack(target, attackValue) {
                             
                             if (response.ok) {
                                 const targetData = await response.json(); 
+
+                                let newKnowledgePlayer;
+                                if (gameState.knowledge >= attackValue) {
+                                    newKnowledgePlayer = gameState.knowledge - attackValue;
+                                } else {
+                                    newKnowledgePlayer = 0;
+                                }
+
+                                gameState.knowledge=newKnowledgePlayer;
             
                                 
                                 let newKnowledge;
@@ -544,41 +559,50 @@ export async function sendAttack(target, attackValue) {
             
                     const response = await fetch(`http://localhost:8080/api/load/${target}`);
                             
-                            if (response.ok) {
-                                const targetData = await response.json(); 
-            
-                                
-                                let newKnowledge;
-                                if (targetData.knowledge >= 10*attackValue) {
-                                    newKnowledge = targetData.knowledge - 10*attackValue;
-                                } else {
-                                    newKnowledge = 0;
-                                }
-            
-                                const dataToSend = {
-                                    knowledge: newKnowledge,
-                                    kps: targetData.kps,         
-                                    clickValue: targetData.clickValue
-                                };
-            
-                                const result = await updateDatabase(target, dataToSend);
-            
-                                if (result.ok){
-                                    alert(`Jackpot !!! Vous avez enlevé ${10*attackValue} de connaissance à ${targetData.playerName}`);
-                                    printLeaderboard();
-                                    createAttackDatabase(gameState.playerName,targetData.playerName,10*attackValue)
-                                }
+                    if (response.ok) {
+                        const targetData = await response.json(); 
+                        
+                        let newKnowledgePlayer;
+                        if (gameState.knowledge >= attackValue) {
+                            newKnowledgePlayer = gameState.knowledge - attackValue;
+                        } else {
+                            newKnowledgePlayer = 0;
+                        }
+
+                        gameState.knowledge=newKnowledgePlayer;
+                        
+                        let newKnowledge;
+                        if (targetData.knowledge >= 10*attackValue) {
+                            newKnowledge = targetData.knowledge - 10*attackValue;
+                        } else {
+                            newKnowledge = 0;
+                        }
+    
+                        const dataToSend = {
+                            knowledge: newKnowledge,
+                            kps: targetData.kps,         
+                            clickValue: targetData.clickValue
+                        };
+    
+                        const result = await updateDatabase(target, dataToSend);
+    
+                        if (result.ok){
+                            alert(`Jackpot !!! Vous avez enlevé ${10*attackValue} de connaissance à ${targetData.playerName}`);
+                            printLeaderboard();
+                            createAttackDatabase(gameState.playerName,targetData.playerName,10*attackValue)
+                        }
             
                     }
                 }
-            }
+            
         } else {alert("Veuillez entrer un nombre valide pour l'attaque")}
 
-    }
+    
 
-    saveToSessionStorage();
+        saveToSessionStorage();
 
     
+    }
 }
 
 
@@ -634,7 +658,80 @@ async function createAttackDatabase(senderName,targetName,attackValue) {
 
 }
 
-async function WereUserAttacked() {
-    
+async function WereUserAttacked(target) {
+    const response = await fetch(`/api/getAttacks/${target}`);
+
+    if (response.ok) {
+        alert("Oui il y a eu une attaque");
+        return true
+    }else {
+         alert("Pas d'attaque à signaler");
+        return false
+    }
+}
+
+export async function printAttacks() {
+    if (WereUserAttacked) {
+
+        const listElement = document.getElementById('attacks-list');
+
+        try {
+        const response = await fetch(`http://localhost:8080/api/getAttacks/${gameState.playerName}`);
+        
+        if (response.ok) {
+            const attacks = await response.json();
+            
+            
+            if (attacks.length > 0) {
+                console.log("Attaques reçues :", attacks);
+
+                
+                let messageHTML = `<p>Pendant votre absence, vous avez subi <strong>${attacks.length}</strong> assaut(s) !</p>`;
+                
+                messageHTML += `<ul style="text-align: left; margin-top: 15px; list-style: none; padding: 0;">`;
+                
+                attacks.forEach(att => {
+                    messageHTML += `
+                        <li style="background: rgba(255,255,255,0.1); margin-bottom: 5px; padding: 8px; border-radius: 5px;">
+                            <strong>${att.senderName}</strong> (-${att.attackValue} connaissances)<br>
+                            <p style="color: #ccc;">"${att.message}"</p>
+                        </li>`;
+                });
+                
+                messageHTML += `</ul>`;
+
+                showPopup(messageHTML);
+            }
+        }
+    } catch (err) {
+        console.error("Erreur récupération attaques", err);
+    }
+
+    }
+}
+
+
+export function showPopup(htmlContent) {
+    const overlay = document.getElementById('popup-overlay');
+    const titleEl = document.getElementById('popup-title');
+    const bodyEl = document.getElementById('popup-body');
+    const closeBtn = document.getElementById('popup-close');
+    const okBtn = document.getElementById('popup-ok-btn');
+
+    titleEl.innerText = "Salut";
+    bodyEl.innerHTML = htmlContent; 
+
+    overlay.classList.remove('hidden');
+
+    const closePopup = () => {
+        overlay.classList.add('hidden');
+    };
+
+    closeBtn.onclick = closePopup;
+    okBtn.onclick = closePopup;
+
+    overlay.onclick = (e) => {
+        if (e.target === overlay) closePopup();
+    };
 }
 

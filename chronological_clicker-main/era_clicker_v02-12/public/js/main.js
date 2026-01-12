@@ -1,5 +1,5 @@
 import { updateUI, renderVisualCanvas } from './ui.js';
-import { handleMainClick, handleBuyUpgrade, handleAdvanceEra, handlePrevEra, handleNextEra, gameLoop, saveGame, loadGame, register, login, printLeaderboard, loadFromSessionStorage , saveToSessionStorage, resetGame } from './game.js';
+import { handleMainClick, handleBuyUpgrade, handleAdvanceEra, handlePrevEra, handleNextEra, gameLoop, saveGame, printAttacks, register, login, printLeaderboard, loadFromSessionStorage , saveToSessionStorage, resetGame} from './game.js';
 import {gameState} from './state.js';
 
 window.gameBridge = {
@@ -35,7 +35,7 @@ function initializeGame() {
     if (btnSave) btnSave.addEventListener('click', saveGame);
 
     const btnLoad = document.getElementById('load-button');
-    if (btnLoad) btnLoad.addEventListener('click', loadGame);
+    if (btnLoad) btnLoad.addEventListener('click', printAttacks);
 
     const btnReset = document.getElementById('reset-game-button');
     if (btnReset) {
@@ -68,6 +68,9 @@ function initializeGame() {
         updateUI();
         renderVisualCanvas();
         setInterval(gameLoop, 1000);
+        if (gameState.playerName != null) {
+            loadFromSessionStorage();
+        }
     }
 
     if (document.querySelector('.leaderboard-container')) {

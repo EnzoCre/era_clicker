@@ -84,13 +84,13 @@ app.post("/api/sendMessage", async(req, res) => {
     }
 });
 
-app.get("/api/getOneAttack/:targetName", async (req,res) => {
+app.get("/api/getAttacks/:targetName", async (req,res) => {
 
     const target = req.params.targetName;
     let attacks = await collectionMessage.find({targetName : target});
     if(attacks.length > 0) {
         res.status(200).json(attacks);
-    } else {res.status(404).json(attacks);}
+    } else {res.status(404).end();}
     
     
 })
