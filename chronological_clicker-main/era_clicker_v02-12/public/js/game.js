@@ -19,6 +19,13 @@ export function showInfos() {
     console.log("Knowledge = ",gameState.knowledge);
     console.log("kps = ",gameState.kps);
     console.log("clickValue = ",gameState.clickValue);
+    console.log("Current era = ",gameState.currentEra);
+    console.log("Max era = ",gameState.maxEraReached);
+    if (upgrades['sharp_stone']) {
+        console.log("Nombre silex =", upgrades['sharp_stone'].owned);
+    } else {
+        console.log("Nombre silex = Erreur (Introuvable)");
+    }
 }
 
 export function setPlayerName(playerName) {
@@ -27,7 +34,7 @@ export function setPlayerName(playerName) {
 
 window.showInfos = showInfos;
 window.setPlayerName = setPlayerName;
-
+window.addKnowledge = addKnowledge;
 
 export function handleMainClick() {
     addKnowledge(gameState.clickValue);
@@ -341,6 +348,7 @@ export function navigateToEra(eraId) {
     if (!ERAS[eraId]) return;
     gameState.currentEra = eraId;
     updateUI();
+    addSavedUpgradesToUI();
     renderVisualCanvas();
 }
 
@@ -382,12 +390,20 @@ export function gameLoopLeaderboard() {
 }
 
 export function saveToSessionStorage() {
+
+    const upgradesOwned = {};
+    for (const [key, value] of Object.entries(upgrades)) {
+        upgradesOwned[key] = value.owned;
+    }
+
     const dataToSave = {
         playerName: gameState.playerName,
         playerPassword: gameState.playerPassword,
         knowledge: gameState.knowledge,
         kps: gameState.kps,
-        clickValue: gameState.clickValue
+        clickValue: gameState.clickValue,
+        maxEraReached : gameState.maxEraReached,
+        upgrades : upgradesOwned,
     }
     sessionStorage.setItem('clickerSave', JSON.stringify(dataToSave));
     console.log("Sauvegarde faite");
@@ -397,21 +413,37 @@ export function loadFromSessionStorage () {
     const dataSavedString = sessionStorage.getItem('clickerSave');
     if (dataSavedString) { 
         const dataSaved = JSON.parse(dataSavedString);
-        gameState.playerName = dataSaved.playerName
-        gameState.playerPassword = dataSaved.playerPassword
-        gameState.knowledge = dataSaved.knowledge
-        gameState.clickValue = dataSaved.clickValue
-        gameState.kps = dataSaved.kps
+        gameState.playerName = dataSaved.playerName;
+        gameState.playerPassword = dataSaved.playerPassword;
+        gameState.knowledge = dataSaved.knowledge;
+        gameState.clickValue = dataSaved.clickValue;
+        gameState.kps = dataSaved.kps;
+        gameState.maxEraReached = dataSaved.maxEraReached;
+        if (dataSaved.upgrades) {
+            for (const [key, count] of Object.entries(dataSaved.upgrades)) {
+                if (upgrades[key]) {
+                    upgrades[key].owned = count;
+                }
+            }
+        }
     } else {
         console.log("Aucune sauvegarde trouvée")
     }
 }
 
 export async function saveGame() {
+
+    const upgradesOwned = {};
+    for (const [key, value] of Object.entries(upgrades)) {
+        upgradesOwned[key] = value.owned;
+    }
+
     const dataToSend = {
         knowledge: gameState.knowledge,
         kps: gameState.kps,
-        clickValue: gameState.clickValue
+        clickValue: gameState.clickValue,
+        maxEraReached : gameState.maxEraReached,
+        upgrades : upgradesOwned,
     };
     const pseudo = gameState.playerName;
 
@@ -454,6 +486,7 @@ export async function loadGame() {
             gameState.knowledge = data.knowledge;
             gameState.kps = data.kps;
             gameState.clickValue = data.clickValue;
+            gameState.maxEraReached = data.maxEraReached;
 
             updateUI(); 
             alert(`Bon retour parmi nous, ${pseudo} !`);
@@ -489,7 +522,8 @@ export async function register() {
         playerPassword: hashPassword,
         knowledge: gameState.knowledge,
         kps: gameState.kps,
-        clickValue: gameState.clickValue
+        clickValue: gameState.clickValue,
+        maxEraReached : "stone_age"
         };
 
         try {
@@ -527,8 +561,16 @@ export async function login() {
                 gameState.playerName = data.playerName;
                 gameState.playerPassword = data.playerPassword;
                 gameState.knowledge = data.knowledge;
-                gameState.kps = data.kps;
+                gameState.kps = data.kps;   
                 gameState.clickValue = data.clickValue;
+                gameState.maxEraReached = data.maxEraReached;
+                if (data.upgrades) {
+                    for (const [key, count] of Object.entries(data.upgrades)) {
+                        if (upgrades[key]) {
+                            upgrades[key].owned = count;
+                        }
+                    }
+                }
                 alert(`Bon retour parmi nous, ${pseudo} !`);
             }
             else {
@@ -772,11 +814,22 @@ export function resetGame() {
     gameState.knowledge = 0;
     gameState.kps = 0;
     gameState.clickValue = 1;
+    gameState.maxEraReached = "stone_age";
+
+    const upgradesOwned = {};
+
+    for (const [key, upgrade] of Object.entries(upgrades)) {
+        upgrade.owned = 0;
+        upgradesOwned[key] = 0;
+    }
+
     saveToSessionStorage();
     const dataToSend = {
         knowledge: gameState.knowledge,
         kps: gameState.kps,
-        clickValue: gameState.clickValue
+        clickValue: gameState.clickValue,
+        maxEraReached : gameState.maxEraReached,
+        upgrades : upgradesOwned,
     };
     updateDatabase(gameState.playerName,dataToSend);
 }
@@ -874,4 +927,83 @@ export function showPopup(htmlContent) {
     overlay.onclick = (e) => {
         if (e.target === overlay) closePopup();
     };
+}
+
+export function addSavedUpgradesToUI(){
+
+    gameState.visualState = {
+        'stone_age': [],
+        'medieval_age': [], 
+        'modern_age': [],
+        'cyberpunk_age': [],
+        'transcendant_age': [],
+    };
+
+    for (const [id, upgrade] of Object.entries(upgrades)) {
+        
+        if (upgrade.owned > 0) {
+            
+            for (let i = 0; i < upgrade.owned; i++) {
+
+                let visualSource = upgrade.icon; 
+                let isImage = false;
+                
+                if (id === 'sharp_stone') {
+                    isImage = true;
+                    visualSource = 'images/era_stone/Pierre/Pierre.png';
+                } else if (id === 'mammouth') {
+                    isImage = true;
+                    visualSource = 'images/era_stone/Mamouth/Mamouth.png';
+                } else if (id === 'forager') {
+                    isImage = true;
+                    visualSource = 'images/era_stone/Ceuilleur/Ceuilleur.png';
+                }
+                else if (id === 'parchment') {
+                    isImage = true;
+                    visualSource = 'images/era_medieval/parchemin.png';
+                } else if (id === 'monastery') {
+                    isImage = true;
+                    visualSource = 'images/era_medieval/eglise.png';
+                } else if (id === 'bread') {
+                    isImage = true;
+                    visualSource = 'images/era_medieval/pain.png';
+                }
+                else if (id === 'oil_barrel') {
+                    isImage = true;
+                    visualSource = 'images/era_modern/Oil.png';
+                } else if (id === 'computer') {
+                    isImage = true;
+                    visualSource = 'images/era_modern/Computer.png';
+                } else if (id === 'skyscraper') {
+                    isImage = true;
+                    visualSource = 'images/era_modern/Skyscraper.png';
+                }
+                else if (id === 'laser_gun') {
+                    isImage = true;
+                    visualSource = 'images/era_cyberpunk/laser_gun.png';
+                } else if (id === 'robot') {
+                    isImage = true;
+                    visualSource = 'images/era_cyberpunk/robot.png';
+                } else if (id === 'shuttle') {
+                    isImage = true;
+                    visualSource = 'images/era_cyberpunk/spaceship.png';
+                }
+
+                
+                else if (id === 'crystal') {
+                    isImage = true;
+                    visualSource = 'images/era_transcendant/crystal.png';
+                } else if (id === 'chalice') {
+                    isImage = true;
+                    visualSource = 'images/era_transcendant/chalice.png';
+                } else if (id === 'angel') {
+                    isImage = true;
+                    visualSource = 'images/era_transcendant/angel.png';
+                }
+
+                addVisualToCanvas(upgrade, visualSource, isImage);
+            }
+        }
+    }
+
 }

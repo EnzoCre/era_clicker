@@ -52,6 +52,9 @@ export function addVisualToCanvas(upgrade, visualSource, isImage = false) {
     const finalIcon = visualSource || upgrade.icon;
     if (!finalIcon) return;
 
+    const targetEra = upgrade.requiredEra;
+
+
     const zones = {
         stone_age: { 
             'Silex Ancestral': [3, 30, 15, 40, 60], 
@@ -85,12 +88,12 @@ export function addVisualToCanvas(upgrade, visualSource, isImage = false) {
         }
     };
 
-    const currentZone = zones[gameState.currentEra] || {};
+    const currentZone = zones[targetEra] || {};
     const config = currentZone[upgrade.name] || currentZone.def || [10, 90, 10, 90, 90];
     
     const [minX, maxX, minY, maxY, size] = config;
 
-    gameState.visualState[gameState.currentEra].push({
+    gameState.visualState[targetEra].push({
         icon: finalIcon, 
         name: upgrade.name, 
         isImage,
@@ -99,7 +102,9 @@ export function addVisualToCanvas(upgrade, visualSource, isImage = false) {
         size: size 
     });
 
-    renderVisualCanvas();
+    if (gameState.currentEra == targetEra) {
+        renderVisualCanvas();
+    }
 }
 
 export function updateUI() {

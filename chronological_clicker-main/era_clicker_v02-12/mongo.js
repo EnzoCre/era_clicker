@@ -17,6 +17,8 @@ const saveSchema = new mongoose.Schema({
     knowledge: Number,
     kps: Number,
     clickValue : Number,
+    maxEraReached : String,
+    upgrades : Object,
 })
 
 const messageSchema = new mongoose.Schema({
