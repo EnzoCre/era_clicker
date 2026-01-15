@@ -25,6 +25,12 @@ Cliquez, accumulez, et voyagez dans le temps !
 * **Backend :** Node.js
 * **Base de données :** MongoDB
 
+## 📥 Installation
+
+* **1** Installer node.js
+* **2** Cloner le projet git.
+* **3** Exécuter le fichier "Lancement.btach".
+
 ---
 
 ## 👥 L'Équipe
